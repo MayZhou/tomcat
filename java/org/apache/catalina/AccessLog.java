@@ -21,6 +21,12 @@ import org.apache.catalina.connector.Response;
 
 
 /**
+ * 该接口通过 {@link Valve} 访问日志记录，Tomcat 内部使用它来标识记录访问请求的阀门（Valve），
+ *  以便仍可以将处理链中较早拒绝的请求添加到访问日志中。
+ *  此接口的实现应该是可靠的, 以防止提供的请求{@link Request}和响应{@link Response}对象为空,
+ *  具有 null 属性或任何其他奇怪的结果, 这些属性或可能是由于试图记录几乎肯定会被拒绝的请求
+ *  而导致的, 因为它是格式错误。
+ *
  * Intended for use by a {@link Valve} to indicate that the {@link Valve}
  * provides access logging. It is used by the Tomcat internals to identify a
  * Valve that logs access requests so requests that are rejected
@@ -33,6 +39,7 @@ import org.apache.catalina.connector.Response;
 public interface AccessLog {
 
     /**
+     * 用于覆盖访问日志记录的远程地址的请求属性的名称。
      * Name of request attribute used to override the remote address recorded by
      * the AccessLog.
      */
@@ -40,6 +47,7 @@ public interface AccessLog {
         "org.apache.catalina.AccessLog.RemoteAddr";
 
     /**
+     * 用于覆盖 AccessLog 记录的远程主机名的请求属性的名称。
      * Name of request attribute used to override remote host name recorded by
      * the AccessLog.
      */
@@ -47,6 +55,7 @@ public interface AccessLog {
         "org.apache.catalina.AccessLog.RemoteHost";
 
     /**
+     * 用于重写访问日志记录的协议的请求属性的名称。
      * Name of request attribute used to override the protocol recorded by the
      * AccessLog.
      */
@@ -54,6 +63,7 @@ public interface AccessLog {
         "org.apache.catalina.AccessLog.Protocol";
 
     /**
+     * 用于覆盖访问日志记录的服务器端口的请求属性的名称。
      * Name of request attribute used to override the server port recorded by
      * the AccessLog.
      */
@@ -62,6 +72,8 @@ public interface AccessLog {
 
 
     /**
+     *
+     * 使用指定的处理时间将请求/响应添加到访问日志中。
      * Add the request/response to the access log using the specified processing
      * time.
      *
@@ -73,6 +85,15 @@ public interface AccessLog {
     public void log(Request request, Response response, long time);
 
     /**
+     * 此阀门是否应设置用于请求的 IP 地址、主机名、协议和端口的请求属性？
+     * 这通常与附件 {@link org.apache.catalina.valves.AccessLogValve}会这里一起使用,
+     * 否则将记录原始值。属性集包括:
+     * <ul>
+     * <li>org.apache.catalina.RemoteAddr</li>
+     * <li>org.apache.catalina.RemoteHost</li>
+     * <li>org.apache.catalina.Protocol</li>
+     * <li>org.apache.catalina.ServerPost</li>
+     * </ul>
      * Should this valve set request attributes for IP address, hostname,
      * protocol and port used for the request? This are typically used in
      * conjunction with the {@link org.apache.catalina.valves.AccessLogValve}
